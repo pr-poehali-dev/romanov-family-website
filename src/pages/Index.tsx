@@ -204,9 +204,21 @@ const Index = () => {
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
                 <defs>
                   <linearGradient id="branchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#8B7355" />
+                    <stop offset="0%" stopColor="#A0826D" />
+                    <stop offset="50%" stopColor="#8B7355" />
                     <stop offset="100%" stopColor="#5D4E37" />
                   </linearGradient>
+                  <filter id="branchShadow">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                    <feOffset dx="1" dy="2" result="offsetblur"/>
+                    <feComponentTransfer>
+                      <feFuncA type="linear" slope="0.3"/>
+                    </feComponentTransfer>
+                    <feMerge>
+                      <feMergeNode/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
                 {branches.map((branch, idx) => {
                   const fromMember = familyData[branch.from];
@@ -218,29 +230,51 @@ const Index = () => {
                   const toX = centerX + toMember.position * 15;
                   const toY = 95 - toMember.level * 10;
                   
-                  const midY = (fromY + toY) / 2;
+                  const midY1 = fromY - 3;
+                  const midY2 = toY + 3;
                   
                   return (
-                    <path
-                      key={idx}
-                      d={`M ${fromX}% ${fromY}% Q ${fromX}% ${midY}%, ${toX}% ${toY}%`}
-                      stroke="url(#branchGradient)"
-                      strokeWidth="3"
-                      fill="none"
-                      className="animate-grow"
-                      style={{ 
-                        animationDelay: `${idx * 0.1}s`,
-                        transformOrigin: `${fromX}% ${fromY}%`
-                      }}
-                    />
+                    <g key={idx}>
+                      <path
+                        d={`M ${fromX}% ${fromY}% C ${fromX}% ${midY1}%, ${toX}% ${midY2}%, ${toX}% ${toY}%`}
+                        stroke="url(#branchGradient)"
+                        strokeWidth="4"
+                        fill="none"
+                        filter="url(#branchShadow)"
+                        className="animate-grow"
+                        strokeLinecap="round"
+                        style={{ 
+                          animationDelay: `${idx * 0.1}s`,
+                          transformOrigin: `${fromX}% ${fromY}%`
+                        }}
+                      />
+                      <path
+                        d={`M ${fromX}% ${fromY}% C ${fromX}% ${midY1}%, ${toX}% ${midY2}%, ${toX}% ${toY}%`}
+                        stroke="rgba(139, 115, 85, 0.3)"
+                        strokeWidth="6"
+                        fill="none"
+                        className="animate-grow"
+                        strokeLinecap="round"
+                        style={{ 
+                          animationDelay: `${idx * 0.1}s`,
+                          transformOrigin: `${fromX}% ${fromY}%`,
+                          filter: 'blur(2px)'
+                        }}
+                      />
+                    </g>
                   );
                 })}
               </svg>
 
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-32 bg-gradient-to-t from-tree-bark to-tree-branch rounded-t-lg animate-grow" style={{ zIndex: 0 }}>
-                <div className="absolute inset-0 bg-tree-bark/20 rounded-t-lg" style={{
-                  backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 4px)'
-                }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-40 bg-gradient-to-t from-tree-bark via-tree-branch to-tree-branch rounded-t-3xl animate-grow shadow-2xl" style={{ zIndex: 0 }}>
+                <div className="absolute inset-0 rounded-t-3xl overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-tree-bark/40 via-transparent to-tree-bark/40" />
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(0,0,0,0.15) 4px, rgba(0,0,0,0.15) 5px), repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(0,0,0,0.08) 8px, rgba(0,0,0,0.08) 10px)'
+                  }} />
+                  <div className="absolute top-0 left-1/4 w-1 h-12 bg-tree-bark/30 rounded-full transform -rotate-12" />
+                  <div className="absolute top-0 right-1/4 w-1 h-12 bg-tree-bark/30 rounded-full transform rotate-12" />
+                </div>
               </div>
 
               {Object.values(familyData).map((member, idx) => {
@@ -266,12 +300,23 @@ const Index = () => {
                       <div className={`relative transition-all duration-300 ${
                         isSelected ? 'scale-125' : 'hover:scale-110'
                       }`}>
-                        <div className={`w-20 h-24 rounded-full relative ${
+                        <div className={`w-24 h-28 relative ${
                           isSelected 
-                            ? 'bg-gradient-to-br from-royal-gold via-tree-leaf to-royal-gold shadow-2xl shadow-royal-gold/50' 
-                            : 'bg-gradient-to-br from-tree-leaf to-tree-leafLight shadow-lg hover:shadow-xl'
-                        } transition-all duration-300`}>
-                          <div className="absolute inset-2 rounded-full bg-white/20 backdrop-blur-sm" />
+                            ? 'shadow-2xl shadow-royal-gold/50' 
+                            : 'shadow-xl hover:shadow-2xl'
+                        } transition-all duration-300`}
+                        style={{
+                          clipPath: 'ellipse(45% 48% at 50% 45%)',
+                        }}>
+                          <div className={`absolute inset-0 ${
+                            isSelected 
+                              ? 'bg-gradient-to-br from-royal-gold via-tree-leaf to-royal-gold' 
+                              : 'bg-gradient-to-br from-tree-leaf via-tree-leafLight to-tree-leaf'
+                          }`} />
+                          <div className="absolute inset-3 bg-white/20 backdrop-blur-sm"
+                          style={{
+                            clipPath: 'ellipse(45% 48% at 50% 45%)',
+                          }} />
                           
                           <div className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center">
                             <Icon 
@@ -292,7 +337,9 @@ const Index = () => {
                           </div>
                         </div>
 
-                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-3 bg-tree-branch" />
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-4 bg-gradient-to-b from-tree-branch to-tree-bark rounded-full shadow-sm" />
+                        <div className="absolute -bottom-2 left-[45%] w-0.5 h-2 bg-tree-branch/70 rounded-full transform -rotate-45" />
+                        <div className="absolute -bottom-2 left-[55%] w-0.5 h-2 bg-tree-branch/70 rounded-full transform rotate-45" />
                         
                         {member.reign && (
                           <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold transition-all duration-300 ${
