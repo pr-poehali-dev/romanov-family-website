@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
@@ -381,53 +381,49 @@ const familyTree: Record<string, PersonData> = {
 
 const Index = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [highlightedBranch, setHighlightedBranch] = useState<Set<string>>(new Set());
 
-  const getAllDescendants = (personId: string): string[] => {
-    const person = familyTree[personId];
-    if (!person) return [];
+  const highlightedBranch = useMemo(() => {
+    if (!selectedId) return new Set<string>();
     
-    const descendants: string[] = [personId];
-    
-    if (person.spouse) {
-      descendants.push(...person.spouse);
-    }
-    
-    if (person.children) {
-      person.children.forEach(childId => {
-        descendants.push(...getAllDescendants(childId));
-      });
-    }
-    
-    return descendants;
-  };
-
-  const getAllAncestors = (personId: string): string[] => {
-    const ancestors: string[] = [];
-    
-    Object.values(familyTree).forEach(person => {
-      if (person.children?.includes(personId)) {
-        ancestors.push(person.id);
-        if (person.spouse) {
-          ancestors.push(...person.spouse);
-        }
-        ancestors.push(...getAllAncestors(person.id));
+    const getAllDescendants = (personId: string): string[] => {
+      const person = familyTree[personId];
+      if (!person) return [];
+      
+      const descendants: string[] = [personId];
+      
+      if (person.spouse) {
+        descendants.push(...person.spouse);
       }
-    });
-    
-    return ancestors;
-  };
+      
+      if (person.children) {
+        person.children.forEach(childId => {
+          descendants.push(...getAllDescendants(childId));
+        });
+      }
+      
+      return descendants;
+    };
 
-  useEffect(() => {
-    if (selectedId) {
-      const branch = new Set([
-        ...getAllAncestors(selectedId),
-        ...getAllDescendants(selectedId)
-      ]);
-      setHighlightedBranch(branch);
-    } else {
-      setHighlightedBranch(new Set());
-    }
+    const getAllAncestors = (personId: string): string[] => {
+      const ancestors: string[] = [];
+      
+      Object.values(familyTree).forEach(person => {
+        if (person.children?.includes(personId)) {
+          ancestors.push(person.id);
+          if (person.spouse) {
+            ancestors.push(...person.spouse);
+          }
+          ancestors.push(...getAllAncestors(person.id));
+        }
+      });
+      
+      return ancestors;
+    };
+    
+    return new Set([
+      ...getAllAncestors(selectedId),
+      ...getAllDescendants(selectedId)
+    ]);
   }, [selectedId]);
 
   const getIconForPerson = (person: PersonData) => {
@@ -520,10 +516,10 @@ const Index = () => {
         <div className="mt-8 flex flex-col items-center">
           {person.spouse && person.spouse.length > 0 && (
             <div className="relative mb-8">
-              <div 
-                className={`absolute top-1/2 left-0 right-0 h-1 rounded-full transition-all duration-700 ${
+                  <div 
+                className={`absolute top-1/2 left-0 right-0 h-1 rounded-full transition-all duration-500 ${
                   isHighlighted 
-                    ? 'bg-gradient-to-r from-pink-500/80 via-pink-500 to-pink-500/80 animate-pulse-slow' 
+                    ? 'bg-gradient-to-r from-pink-500/80 via-pink-500 to-pink-500/80' 
                     : 'bg-gradient-to-r from-pink-500/40 via-pink-500/60 to-pink-500/40'
                 }`}
                 style={{ transform: 'translateY(-50%)' }} 
@@ -546,9 +542,9 @@ const Index = () => {
 
           {person.children && person.children.length > 0 && (
             <div className="relative">
-              <div className={`absolute left-1/2 -translate-x-1/2 -top-8 w-1 h-8 rounded-full shadow-sm transition-all duration-700 ${
+              <div className={`absolute left-1/2 -translate-x-1/2 -top-8 w-1 h-8 rounded-full shadow-sm transition-all duration-500 ${
                 isHighlighted 
-                  ? 'bg-gradient-to-b from-primary via-primary to-primary/80 animate-pulse-slow' 
+                  ? 'bg-gradient-to-b from-primary via-primary to-primary/80' 
                   : 'bg-gradient-to-b from-primary via-primary/70 to-primary/50'
               }`} />
               
@@ -556,9 +552,9 @@ const Index = () => {
                 {person.children.length > 1 && (
                   <>
                     <div 
-                      className={`absolute top-0 left-0 right-0 h-1 rounded-full shadow-sm transition-all duration-700 ${
+                      className={`absolute top-0 left-0 right-0 h-1 rounded-full shadow-sm transition-all duration-500 ${
                         isHighlighted
-                          ? 'bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse-slow'
+                          ? 'bg-gradient-to-r from-transparent via-primary to-transparent'
                           : 'bg-gradient-to-r from-transparent via-primary to-transparent'
                       }`}
                       style={{ boxShadow: isHighlighted ? '0 0 15px rgba(212, 175, 55, 0.6)' : '0 0 10px rgba(212, 175, 55, 0.3)' }} 
@@ -577,9 +573,9 @@ const Index = () => {
                   <div key={childId} className="relative flex flex-col items-center">
                     {person.children && person.children.length > 1 && (
                       <>
-                        <div className={`absolute -top-0 left-1/2 -translate-x-1/2 w-1 h-8 rounded-full transition-all duration-700 ${
+                        <div className={`absolute -top-0 left-1/2 -translate-x-1/2 w-1 h-8 rounded-full transition-all duration-500 ${
                           isHighlighted
-                            ? 'bg-gradient-to-b from-primary to-primary/60 animate-pulse-slow'
+                            ? 'bg-gradient-to-b from-primary to-primary/60'
                             : 'bg-gradient-to-b from-primary/70 to-primary/40'
                         }`} />
                         <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full shadow-lg border-2 border-background transition-all duration-500 ${
