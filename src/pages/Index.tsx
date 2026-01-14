@@ -466,32 +466,53 @@ const Index = () => {
           </div>
         </button>
 
-        <div className="mt-6 flex flex-col items-center">
+        <div className="mt-8 flex flex-col items-center">
           {person.spouse && person.spouse.length > 0 && (
-            <div className="flex gap-4 mb-6">
-              {person.spouse.map(spouseId => (
-                <div key={spouseId}>
-                  {renderPerson(spouseId, level)}
-                </div>
-              ))}
+            <div className="relative mb-8">
+              <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-pink-500/40 via-pink-500/60 to-pink-500/40 rounded-full" 
+                   style={{ transform: 'translateY(-50%)' }} />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-background">
+                <Icon name="Heart" size={16} className="text-white" />
+              </div>
+              
+              <div className="flex gap-6 relative z-10">
+                {person.spouse.map(spouseId => (
+                  <div key={spouseId}>
+                    {renderPerson(spouseId, level)}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {person.children && person.children.length > 0 && (
             <div className="relative">
-              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-0.5 h-6 bg-gradient-to-b from-primary/50 to-primary/20" />
+              <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-1 h-8 bg-gradient-to-b from-primary via-primary/70 to-primary/50 rounded-full shadow-sm" />
               
-              <div className={`flex gap-8 relative ${person.children.length > 1 ? 'justify-center' : ''}`}>
+              <div className={`flex gap-12 relative ${person.children.length > 1 ? 'justify-center' : ''}`}>
                 {person.children.length > 1 && (
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                  <>
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full shadow-sm" 
+                         style={{ boxShadow: '0 0 10px rgba(212, 175, 55, 0.3)' }} />
+                    <svg className="absolute top-0 left-0 right-0 h-1 pointer-events-none" style={{ top: '-2px' }}>
+                      <defs>
+                        <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <path d="M0,0 L0,6 L6,3 z" fill="rgb(212, 175, 55)" opacity="0.6" />
+                        </marker>
+                      </defs>
+                    </svg>
+                  </>
                 )}
                 
-                {person.children.map((childId) => (
+                {person.children.map((childId, idx) => (
                   <div key={childId} className="relative flex flex-col items-center">
                     {person.children && person.children.length > 1 && (
-                      <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-gradient-to-b from-primary/30 to-primary/20" />
+                      <>
+                        <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-1 h-8 bg-gradient-to-b from-primary/70 to-primary/40 rounded-full" />
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-lg border-2 border-background" />
+                      </>
                     )}
-                    <div className="mt-6">
+                    <div className="mt-8">
                       {renderPerson(childId, level + 1)}
                     </div>
                   </div>
@@ -527,11 +548,11 @@ const Index = () => {
         <div className="max-w-[1800px] mx-auto">
           <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-2xl mb-12">
             <CardHeader>
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-4">
                 <p className="text-muted-foreground leading-relaxed">
                   Полное генеалогическое древо династии Романовых включает правителей, их супругов, детей и родственников.
                 </p>
-                <div className="flex items-center justify-center gap-6 text-sm">
+                <div className="flex items-center justify-center gap-8 text-sm flex-wrap">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
                       <Icon name="Crown" size={14} className="text-background" />
@@ -549,6 +570,16 @@ const Index = () => {
                       <Icon name="User" size={14} className="text-foreground" />
                     </div>
                     <span className="text-muted-foreground">Родственники</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-8 pt-3 border-t border-border/30">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-12 h-0.5 bg-gradient-to-r from-primary/50 to-primary rounded-full" />
+                    <span className="text-muted-foreground">Родитель → Дети</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-12 h-0.5 bg-gradient-to-r from-pink-500/50 to-pink-500/50 rounded-full" />
+                    <span className="text-muted-foreground">Брак</span>
                   </div>
                 </div>
               </div>
