@@ -148,7 +148,8 @@ export default {
 				'fade-in': 'fade-in 0.4s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
 				'sway': 'sway 3s ease-in-out infinite',
-				'grow': 'grow 0.6s ease-out forwards'
+				'grow': 'grow 0.6s ease-out forwards',
+				'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			}
 		}
 	},

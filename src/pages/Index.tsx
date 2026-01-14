@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
@@ -381,6 +381,54 @@ const familyTree: Record<string, PersonData> = {
 
 const Index = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [highlightedBranch, setHighlightedBranch] = useState<Set<string>>(new Set());
+
+  const getAllDescendants = (personId: string): string[] => {
+    const person = familyTree[personId];
+    if (!person) return [];
+    
+    const descendants: string[] = [personId];
+    
+    if (person.spouse) {
+      descendants.push(...person.spouse);
+    }
+    
+    if (person.children) {
+      person.children.forEach(childId => {
+        descendants.push(...getAllDescendants(childId));
+      });
+    }
+    
+    return descendants;
+  };
+
+  const getAllAncestors = (personId: string): string[] => {
+    const ancestors: string[] = [];
+    
+    Object.values(familyTree).forEach(person => {
+      if (person.children?.includes(personId)) {
+        ancestors.push(person.id);
+        if (person.spouse) {
+          ancestors.push(...person.spouse);
+        }
+        ancestors.push(...getAllAncestors(person.id));
+      }
+    });
+    
+    return ancestors;
+  };
+
+  useEffect(() => {
+    if (selectedId) {
+      const branch = new Set([
+        ...getAllAncestors(selectedId),
+        ...getAllDescendants(selectedId)
+      ]);
+      setHighlightedBranch(branch);
+    } else {
+      setHighlightedBranch(new Set());
+    }
+  }, [selectedId]);
 
   const getIconForPerson = (person: PersonData) => {
     if (person.type === 'ruler') return 'Crown';
@@ -391,6 +439,7 @@ const Index = () => {
   const renderPerson = (personId: string, level: number = 0) => {
     const person = familyTree[personId];
     const isSelected = selectedId === personId;
+    const isHighlighted = highlightedBranch.has(personId);
     const isRuler = person.type === 'ruler';
     const isSpouse = person.type === 'spouse';
 
@@ -408,6 +457,8 @@ const Index = () => {
             } ${
               isSelected
                 ? 'bg-gradient-to-br from-primary/30 via-primary/20 to-primary/30 border-2 border-primary shadow-2xl shadow-primary/50'
+                : isHighlighted
+                ? 'bg-gradient-to-br from-primary/20 via-primary/10 to-primary/20 border border-primary/40 shadow-xl shadow-primary/30'
                 : `${isRuler ? 'bg-card/60' : isSpouse ? 'bg-card/40' : 'bg-card/30'} border border-border hover:border-primary/50 shadow-lg hover:shadow-xl`
             }`}
           >
@@ -469,9 +520,17 @@ const Index = () => {
         <div className="mt-8 flex flex-col items-center">
           {person.spouse && person.spouse.length > 0 && (
             <div className="relative mb-8">
-              <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-pink-500/40 via-pink-500/60 to-pink-500/40 rounded-full" 
-                   style={{ transform: 'translateY(-50%)' }} />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-background">
+              <div 
+                className={`absolute top-1/2 left-0 right-0 h-1 rounded-full transition-all duration-700 ${
+                  isHighlighted 
+                    ? 'bg-gradient-to-r from-pink-500/80 via-pink-500 to-pink-500/80 animate-pulse-slow' 
+                    : 'bg-gradient-to-r from-pink-500/40 via-pink-500/60 to-pink-500/40'
+                }`}
+                style={{ transform: 'translateY(-50%)' }} 
+              />
+              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-4 border-background transition-all duration-500 ${
+                isHighlighted ? 'bg-pink-500 scale-110' : 'bg-pink-500'
+              }`}>
                 <Icon name="Heart" size={16} className="text-white" />
               </div>
               
@@ -487,13 +546,23 @@ const Index = () => {
 
           {person.children && person.children.length > 0 && (
             <div className="relative">
-              <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-1 h-8 bg-gradient-to-b from-primary via-primary/70 to-primary/50 rounded-full shadow-sm" />
+              <div className={`absolute left-1/2 -translate-x-1/2 -top-8 w-1 h-8 rounded-full shadow-sm transition-all duration-700 ${
+                isHighlighted 
+                  ? 'bg-gradient-to-b from-primary via-primary to-primary/80 animate-pulse-slow' 
+                  : 'bg-gradient-to-b from-primary via-primary/70 to-primary/50'
+              }`} />
               
               <div className={`flex gap-12 relative ${person.children.length > 1 ? 'justify-center' : ''}`}>
                 {person.children.length > 1 && (
                   <>
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full shadow-sm" 
-                         style={{ boxShadow: '0 0 10px rgba(212, 175, 55, 0.3)' }} />
+                    <div 
+                      className={`absolute top-0 left-0 right-0 h-1 rounded-full shadow-sm transition-all duration-700 ${
+                        isHighlighted
+                          ? 'bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse-slow'
+                          : 'bg-gradient-to-r from-transparent via-primary to-transparent'
+                      }`}
+                      style={{ boxShadow: isHighlighted ? '0 0 15px rgba(212, 175, 55, 0.6)' : '0 0 10px rgba(212, 175, 55, 0.3)' }} 
+                    />
                     <svg className="absolute top-0 left-0 right-0 h-1 pointer-events-none" style={{ top: '-2px' }}>
                       <defs>
                         <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -508,8 +577,14 @@ const Index = () => {
                   <div key={childId} className="relative flex flex-col items-center">
                     {person.children && person.children.length > 1 && (
                       <>
-                        <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-1 h-8 bg-gradient-to-b from-primary/70 to-primary/40 rounded-full" />
-                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-lg border-2 border-background" />
+                        <div className={`absolute -top-0 left-1/2 -translate-x-1/2 w-1 h-8 rounded-full transition-all duration-700 ${
+                          isHighlighted
+                            ? 'bg-gradient-to-b from-primary to-primary/60 animate-pulse-slow'
+                            : 'bg-gradient-to-b from-primary/70 to-primary/40'
+                        }`} />
+                        <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full shadow-lg border-2 border-background transition-all duration-500 ${
+                          isHighlighted ? 'bg-primary scale-125' : 'bg-primary'
+                        }`} />
                       </>
                     )}
                     <div className="mt-8">
