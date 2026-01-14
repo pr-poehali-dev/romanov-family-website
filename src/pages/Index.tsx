@@ -2,26 +2,42 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
-interface RulerData {
+interface PersonData {
   id: string;
   name: string;
   title: string;
   years: string;
-  reign: string;
+  reign?: string;
   bio: string;
-  achievements: string[];
+  type: 'ruler' | 'spouse' | 'relative';
+  gender: 'male' | 'female';
+  achievements?: string[];
   children?: string[];
+  spouse?: string[];
 }
 
-const rulers: Record<string, RulerData> = {
+const familyTree: Record<string, PersonData> = {
   mikhail: {
     id: 'mikhail',
     name: 'Михаил Фёдорович',
     title: 'Основатель династии',
     years: '1596–1645',
     reign: '1613–1645',
-    bio: 'Первый русский царь из династии Романовых, избранный Земским собором после Смутного времени.',
-    achievements: ['Основание династии Романовых', 'Восстановление государственности', 'Заключение Столбовского мира'],
+    bio: 'Первый русский царь из династии Романовых, избранный Земским собором.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Основание династии', 'Восстановление государственности'],
+    spouse: ['evdokia'],
+    children: ['alexei']
+  },
+  evdokia: {
+    id: 'evdokia',
+    name: 'Евдокия Стрешнева',
+    title: 'Царица',
+    years: '1608–1645',
+    bio: 'Супруга Михаила Фёдоровича, мать Алексея Михайловича.',
+    type: 'spouse',
+    gender: 'female',
     children: ['alexei']
   },
   alexei: {
@@ -30,47 +46,155 @@ const rulers: Record<string, RulerData> = {
     title: 'Тишайший',
     years: '1629–1676',
     reign: '1645–1676',
-    bio: 'Второй царь династии Романовых, прозванный Тишайшим за спокойный характер.',
-    achievements: ['Соборное уложение 1649 года', 'Присоединение Украины', 'Церковная реформа'],
-    children: ['fedor', 'peter']
+    bio: 'Второй царь династии Романовых, отец Петра I.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Соборное уложение', 'Присоединение Украины'],
+    spouse: ['maria_m', 'natalya_n'],
+    children: ['fedor', 'sophia', 'ivan5', 'peter']
+  },
+  maria_m: {
+    id: 'maria_m',
+    name: 'Мария Милославская',
+    title: 'Царица (1-я жена)',
+    years: '1624–1669',
+    bio: 'Первая жена Алексея Михайловича, мать 13 детей.',
+    type: 'spouse',
+    gender: 'female',
+    children: ['fedor', 'sophia', 'ivan5']
+  },
+  natalya_n: {
+    id: 'natalya_n',
+    name: 'Наталья Нарышкина',
+    title: 'Царица (2-я жена)',
+    years: '1651–1694',
+    bio: 'Вторая жена Алексея Михайловича, мать Петра I.',
+    type: 'spouse',
+    gender: 'female',
+    children: ['peter']
   },
   fedor: {
     id: 'fedor',
     name: 'Фёдор III Алексеевич',
-    title: 'Реформатор',
+    title: 'Царь',
     years: '1661–1682',
     reign: '1676–1682',
-    bio: 'Старший сын Алексея Михайловича, болезненный, но образованный правитель.',
-    achievements: ['Отмена местничества', 'Военные реформы', 'Развитие образования']
+    bio: 'Старший сын Алексея Михайловича и Марии Милославской.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Отмена местничества', 'Реформы']
+  },
+  sophia: {
+    id: 'sophia',
+    name: 'Софья Алексеевна',
+    title: 'Регентша',
+    years: '1657–1704',
+    reign: '1682–1689 (регентство)',
+    bio: 'Правительница России при малолетних братьях Иване V и Петре I.',
+    type: 'relative',
+    gender: 'female',
+    achievements: ['Регентство', 'Крымские походы']
+  },
+  ivan5: {
+    id: 'ivan5',
+    name: 'Иван V Алексеевич',
+    title: 'Соправитель',
+    years: '1666–1696',
+    reign: '1682–1696',
+    bio: 'Соправитель Петра I, отец императрицы Анны Иоанновны.',
+    type: 'ruler',
+    gender: 'male',
+    spouse: ['praskovya'],
+    children: ['anna_i']
+  },
+  praskovya: {
+    id: 'praskovya',
+    name: 'Прасковья Салтыкова',
+    title: 'Царица',
+    years: '1664–1723',
+    bio: 'Супруга Ивана V, мать трёх дочерей.',
+    type: 'spouse',
+    gender: 'female',
+    children: ['anna_i']
+  },
+  anna_i: {
+    id: 'anna_i',
+    name: 'Анна Иоанновна',
+    title: 'Императрица',
+    years: '1693–1740',
+    reign: '1730–1740',
+    bio: 'Дочь Ивана V, племянница Петра I, императрица России.',
+    type: 'ruler',
+    gender: 'female',
+    achievements: ['Укрепление империи', 'Война с Турцией']
   },
   peter: {
     id: 'peter',
     name: 'Пётр I Великий',
-    title: 'Император Всероссийский',
+    title: 'Император',
     years: '1672–1725',
     reign: '1682–1725',
-    bio: 'Последний царь всея Руси и первый Император Всероссийский. Реформатор и военный гений.',
-    achievements: ['Основание Санкт-Петербурга', 'Создание флота', 'Победа в Северной войне', 'Модернизация России'],
-    children: ['elizabeth']
+    bio: 'Первый российский император, реформатор и основатель Санкт-Петербурга.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Основание Санкт-Петербурга', 'Северная война', 'Модернизация'],
+    spouse: ['catherine1'],
+    children: ['anna_p', 'elizabeth']
+  },
+  catherine1: {
+    id: 'catherine1',
+    name: 'Екатерина I',
+    title: 'Императрица',
+    years: '1684–1727',
+    reign: '1725–1727',
+    bio: 'Жена Петра I, первая российская императрица.',
+    type: 'ruler',
+    gender: 'female',
+    children: ['anna_p', 'elizabeth']
+  },
+  anna_p: {
+    id: 'anna_p',
+    name: 'Анна Петровна',
+    title: 'Цесаревна',
+    years: '1708–1728',
+    bio: 'Дочь Петра I, мать императора Петра III.',
+    type: 'relative',
+    gender: 'female',
+    children: ['peter3']
+  },
+  peter3: {
+    id: 'peter3',
+    name: 'Пётр III',
+    title: 'Император',
+    years: '1728–1762',
+    reign: '1761–1762',
+    bio: 'Внук Петра I, муж Екатерины II, свергнут через полгода.',
+    type: 'ruler',
+    gender: 'male',
+    spouse: ['catherine2'],
+    children: ['paul']
   },
   elizabeth: {
     id: 'elizabeth',
     name: 'Елизавета Петровна',
-    title: 'Дочь Петра',
+    title: 'Императрица',
     years: '1709–1762',
     reign: '1741–1762',
-    bio: 'Дочь Петра I, продолжившая политику европеизации и просвещения.',
-    achievements: ['Основание МГУ', 'Создание Академии художеств', 'Расцвет культуры'],
-    children: ['catherine']
+    bio: 'Дочь Петра I, продолжившая политику европеизации.',
+    type: 'ruler',
+    gender: 'female',
+    achievements: ['Основание МГУ', 'Академия художеств']
   },
-  catherine: {
-    id: 'catherine',
+  catherine2: {
+    id: 'catherine2',
     name: 'Екатерина II Великая',
-    title: 'Просвещённая императрица',
+    title: 'Императрица',
     years: '1729–1796',
     reign: '1762–1796',
-    bio: 'Великая императрица, эпоха которой названа золотым веком Российской империи.',
-    achievements: ['Расширение империи', 'Просвещённый абсолютизм', 'Жалованная грамота дворянству', 'Культурный расцвет'],
+    bio: 'Великая императрица, золотой век Российской империи.',
+    type: 'ruler',
+    gender: 'female',
+    achievements: ['Расширение империи', 'Просвещённый абсолютизм', 'Культурный расцвет'],
     children: ['paul']
   },
   paul: {
@@ -79,18 +203,42 @@ const rulers: Record<string, RulerData> = {
     title: 'Император',
     years: '1754–1801',
     reign: '1796–1801',
-    bio: 'Сын Екатерины II, проводивший политику укрепления самодержавия.',
-    achievements: ['Закон о престолонаследии', 'Военные реформы', 'Ограничение дворянских привилегий'],
-    children: ['alexander1', 'nicholas1']
+    bio: 'Сын Екатерины II, проводивший политику укрепления власти.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Закон о престолонаследии', 'Военные реформы'],
+    spouse: ['maria_f'],
+    children: ['alexander1', 'constantine', 'nicholas1']
+  },
+  maria_f: {
+    id: 'maria_f',
+    name: 'Мария Фёдоровна',
+    title: 'Императрица',
+    years: '1759–1828',
+    bio: 'Супруга Павла I, мать императоров Александра I и Николая I.',
+    type: 'spouse',
+    gender: 'female',
+    children: ['alexander1', 'constantine', 'nicholas1']
   },
   alexander1: {
     id: 'alexander1',
     name: 'Александр I Благословенный',
-    title: 'Победитель Наполеона',
+    title: 'Император',
     years: '1777–1825',
     reign: '1801–1825',
-    bio: 'Император, победивший Наполеона и проводивший либеральные реформы.',
-    achievements: ['Победа над Наполеоном', 'Венский конгресс', 'Либеральные реформы']
+    bio: 'Победитель Наполеона, проводивший либеральные реформы.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Победа над Наполеоном', 'Венский конгресс']
+  },
+  constantine: {
+    id: 'constantine',
+    name: 'Константин Павлович',
+    title: 'Великий князь',
+    years: '1779–1831',
+    bio: 'Брат Александра I, отказался от престола в пользу Николая I.',
+    type: 'relative',
+    gender: 'male'
   },
   nicholas1: {
     id: 'nicholas1',
@@ -99,17 +247,43 @@ const rulers: Record<string, RulerData> = {
     years: '1796–1855',
     reign: '1825–1855',
     bio: 'Брат Александра I, укрепивший самодержавную власть.',
-    achievements: ['Кодификация законов', 'Строительство железных дорог', 'Подавление восстаний'],
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Кодификация законов', 'Строительство железных дорог'],
+    spouse: ['alexandra_f'],
+    children: ['alexander2']
+  },
+  alexandra_f: {
+    id: 'alexandra_f',
+    name: 'Александра Фёдоровна',
+    title: 'Императрица',
+    years: '1798–1860',
+    bio: 'Супруга Николая I, прусская принцесса.',
+    type: 'spouse',
+    gender: 'female',
     children: ['alexander2']
   },
   alexander2: {
     id: 'alexander2',
     name: 'Александр II Освободитель',
-    title: 'Царь-реформатор',
+    title: 'Император',
     years: '1818–1881',
     reign: '1855–1881',
-    bio: 'Император-реформатор, отменивший крепостное право в России.',
-    achievements: ['Отмена крепостного права', 'Судебная реформа', 'Военные реформы', 'Земская реформа'],
+    bio: 'Царь-реформатор, отменивший крепостное право.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Отмена крепостного права', 'Великие реформы'],
+    spouse: ['maria_a'],
+    children: ['alexander3']
+  },
+  maria_a: {
+    id: 'maria_a',
+    name: 'Мария Александровна',
+    title: 'Императрица',
+    years: '1824–1880',
+    bio: 'Супруга Александра II, немецкая принцесса.',
+    type: 'spouse',
+    gender: 'female',
     children: ['alexander3']
   },
   alexander3: {
@@ -118,8 +292,21 @@ const rulers: Record<string, RulerData> = {
     title: 'Император',
     years: '1845–1894',
     reign: '1881–1894',
-    bio: 'Император, проводивший политику контрреформ и укрепления традиций.',
-    achievements: ['Мирная внешняя политика', 'Индустриализация', 'Укрепление самодержавия'],
+    bio: 'Проводил политику укрепления самодержавия.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Мирная политика', 'Индустриализация'],
+    spouse: ['maria_f2'],
+    children: ['nicholas2']
+  },
+  maria_f2: {
+    id: 'maria_f2',
+    name: 'Мария Фёдоровна',
+    title: 'Императрица',
+    years: '1847–1928',
+    bio: 'Супруга Александра III, датская принцесса, мать Николая II.',
+    type: 'spouse',
+    gender: 'female',
     children: ['nicholas2']
   },
   nicholas2: {
@@ -128,102 +315,191 @@ const rulers: Record<string, RulerData> = {
     title: 'Последний император',
     years: '1868–1918',
     reign: '1894–1917',
-    bio: 'Последний российский император, царствование которого закончилось революцией.',
-    achievements: ['Созыв Государственной думы', 'Столыпинские реформы', 'Гаагские конференции']
+    bio: 'Последний российский император, расстрелян большевиками.',
+    type: 'ruler',
+    gender: 'male',
+    achievements: ['Созыв Думы', 'Столыпинские реформы'],
+    spouse: ['alexandra_f2'],
+    children: ['alexei_n', 'olga', 'tatyana', 'maria_n', 'anastasia']
+  },
+  alexandra_f2: {
+    id: 'alexandra_f2',
+    name: 'Александра Фёдоровна',
+    title: 'Императрица',
+    years: '1872–1918',
+    bio: 'Супруга Николая II, немецкая принцесса, расстреляна с семьёй.',
+    type: 'spouse',
+    gender: 'female',
+    children: ['alexei_n', 'olga', 'tatyana', 'maria_n', 'anastasia']
+  },
+  alexei_n: {
+    id: 'alexei_n',
+    name: 'Алексей Николаевич',
+    title: 'Цесаревич',
+    years: '1904–1918',
+    bio: 'Наследник престола, страдал гемофилией, расстрелян в 14 лет.',
+    type: 'relative',
+    gender: 'male'
+  },
+  olga: {
+    id: 'olga',
+    name: 'Ольга Николаевна',
+    title: 'Великая княжна',
+    years: '1895–1918',
+    bio: 'Старшая дочь Николая II.',
+    type: 'relative',
+    gender: 'female'
+  },
+  tatyana: {
+    id: 'tatyana',
+    name: 'Татьяна Николаевна',
+    title: 'Великая княжна',
+    years: '1897–1918',
+    bio: 'Вторая дочь Николая II.',
+    type: 'relative',
+    gender: 'female'
+  },
+  maria_n: {
+    id: 'maria_n',
+    name: 'Мария Николаевна',
+    title: 'Великая княжна',
+    years: '1899–1918',
+    bio: 'Третья дочь Николая II.',
+    type: 'relative',
+    gender: 'female'
+  },
+  anastasia: {
+    id: 'anastasia',
+    name: 'Анастасия Николаевна',
+    title: 'Великая княжна',
+    years: '1901–1918',
+    bio: 'Младшая дочь Николая II.',
+    type: 'relative',
+    gender: 'female'
   }
 };
 
 const Index = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const renderTree = (rulerId: string, level: number = 0) => {
-    const ruler = rulers[rulerId];
-    const isSelected = selectedId === rulerId;
+  const getIconForPerson = (person: PersonData) => {
+    if (person.type === 'ruler') return 'Crown';
+    if (person.type === 'spouse') return 'Heart';
+    return 'User';
+  };
+
+  const renderPerson = (personId: string, level: number = 0) => {
+    const person = familyTree[personId];
+    const isSelected = selectedId === personId;
+    const isRuler = person.type === 'ruler';
+    const isSpouse = person.type === 'spouse';
 
     return (
-      <div key={rulerId} className="flex flex-col items-center">
+      <div key={personId} className="flex flex-col items-center">
         <button
-          onClick={() => setSelectedId(rulerId)}
+          onClick={() => setSelectedId(personId)}
           className={`group relative transition-all duration-500 ${
             isSelected ? 'scale-105' : 'hover:scale-105'
           }`}
         >
           <div
-            className={`relative w-72 p-6 rounded-xl transition-all duration-500 backdrop-blur-sm ${
+            className={`relative p-5 rounded-xl transition-all duration-500 backdrop-blur-sm ${
+              isRuler ? 'w-72' : 'w-64'
+            } ${
               isSelected
                 ? 'bg-gradient-to-br from-primary/30 via-primary/20 to-primary/30 border-2 border-primary shadow-2xl shadow-primary/50'
-                : 'bg-card/50 border border-border hover:border-primary/50 shadow-xl hover:shadow-2xl'
+                : `${isRuler ? 'bg-card/60' : isSpouse ? 'bg-card/40' : 'bg-card/30'} border border-border hover:border-primary/50 shadow-lg hover:shadow-xl`
             }`}
           >
-            <div className="absolute -top-3 -right-3 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
-              <Icon name="Crown" className="text-background" size={24} />
+            <div className={`absolute -top-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${
+              isRuler ? 'bg-primary' : isSpouse ? 'bg-pink-500' : 'bg-muted'
+            }`}>
+              <Icon name={getIconForPerson(person)} className={isRuler || isSpouse ? 'text-background' : 'text-foreground'} size={20} />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <h3 className="font-cormorant font-bold text-2xl text-foreground mb-1">
-                  {ruler.name}
+                <h3 className={`font-cormorant font-bold ${isRuler ? 'text-xl' : 'text-lg'} text-foreground mb-0.5`}>
+                  {person.name}
                 </h3>
-                <p className="text-primary text-sm font-semibold">{ruler.title}</p>
+                <p className={`${isRuler ? 'text-primary' : isSpouse ? 'text-pink-400' : 'text-muted-foreground'} text-xs font-semibold`}>
+                  {person.title}
+                </p>
               </div>
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Icon name="Calendar" size={14} />
-                <span>{ruler.years}</span>
+                <Icon name="Calendar" size={12} />
+                <span>{person.years}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                <Icon name="Shield" size={14} />
-                <span>Правление: {ruler.reign}</span>
-              </div>
+              {person.reign && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                  <Icon name="Shield" size={12} />
+                  <span>{person.reign}</span>
+                </div>
+              )}
             </div>
 
             {isSelected && (
-              <div className="mt-4 pt-4 border-t border-primary/30 space-y-3 animate-fade-in">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {ruler.bio}
+              <div className="mt-3 pt-3 border-t border-primary/30 space-y-2 animate-fade-in">
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {person.bio}
                 </p>
-                <div>
-                  <h4 className="text-xs font-semibold text-primary mb-2 flex items-center gap-1">
-                    <Icon name="Award" size={12} />
-                    Достижения
-                  </h4>
-                  <ul className="space-y-1">
-                    {ruler.achievements.map((achievement, idx) => (
-                      <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
-                        <span className="text-primary mt-0.5">•</span>
-                        <span>{achievement}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {person.achievements && person.achievements.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-primary mb-1.5 flex items-center gap-1">
+                      <Icon name="Award" size={10} />
+                      Достижения
+                    </h4>
+                    <ul className="space-y-0.5">
+                      {person.achievements.map((achievement, idx) => (
+                        <li key={idx} className="text-[10px] text-muted-foreground flex items-start gap-1.5">
+                          <span className="text-primary mt-0.5">•</span>
+                          <span>{achievement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </button>
 
-        {ruler.children && ruler.children.length > 0 && (
-          <div className="relative mt-8">
-            <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-0.5 h-8 bg-gradient-to-b from-primary/50 to-primary/20" />
-            
-            <div className={`flex gap-12 relative ${ruler.children.length > 1 ? 'justify-center' : ''}`}>
-              {ruler.children.length > 1 && (
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-              )}
-              
-              {ruler.children.map((childId, idx) => (
-                <div key={childId} className="relative flex flex-col items-center">
-                  {ruler.children && ruler.children.length > 1 && (
-                    <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-gradient-to-b from-primary/30 to-primary/20" />
-                  )}
-                  <div className="mt-8">
-                    {renderTree(childId, level + 1)}
-                  </div>
+        <div className="mt-6 flex flex-col items-center">
+          {person.spouse && person.spouse.length > 0 && (
+            <div className="flex gap-4 mb-6">
+              {person.spouse.map(spouseId => (
+                <div key={spouseId}>
+                  {renderPerson(spouseId, level)}
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+
+          {person.children && person.children.length > 0 && (
+            <div className="relative">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-0.5 h-6 bg-gradient-to-b from-primary/50 to-primary/20" />
+              
+              <div className={`flex gap-8 relative ${person.children.length > 1 ? 'justify-center' : ''}`}>
+                {person.children.length > 1 && (
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                )}
+                
+                {person.children.map((childId) => (
+                  <div key={childId} className="relative flex flex-col items-center">
+                    {person.children && person.children.length > 1 && (
+                      <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-gradient-to-b from-primary/30 to-primary/20" />
+                    )}
+                    <div className="mt-6">
+                      {renderPerson(childId, level + 1)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -242,30 +518,47 @@ const Index = () => {
             <Icon name="Crown" className="text-primary" size={32} />
           </div>
           <p className="text-center text-muted-foreground mt-3 text-lg">
-            1613—1917 • Три столетия на российском престоле
+            1613—1917 • Полное генеалогическое древо
           </p>
         </div>
       </header>
 
       <main className="relative container mx-auto px-4 py-16">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1800px] mx-auto">
           <Card className="border-primary/20 bg-card/50 backdrop-blur-sm shadow-2xl mb-12">
             <CardHeader>
               <div className="text-center space-y-2">
                 <p className="text-muted-foreground leading-relaxed">
-                  Династия Романовых правила Российским государством более 300 лет — с 1613 по 1917 год.
-                  За это время Россия превратилась из царства в могущественную империю.
+                  Полное генеалогическое древо династии Романовых включает правителей, их супругов, детей и родственников.
                 </p>
-                <p className="text-sm text-primary flex items-center justify-center gap-2">
-                  <Icon name="Info" size={16} />
-                  Нажмите на карточку правителя, чтобы узнать подробности
-                </p>
+                <div className="flex items-center justify-center gap-6 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Icon name="Crown" size={14} className="text-background" />
+                    </div>
+                    <span className="text-primary">Правители</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center">
+                      <Icon name="Heart" size={14} className="text-background" />
+                    </div>
+                    <span className="text-pink-400">Супруги</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                      <Icon name="User" size={14} className="text-foreground" />
+                    </div>
+                    <span className="text-muted-foreground">Родственники</span>
+                  </div>
+                </div>
               </div>
             </CardHeader>
           </Card>
 
-          <div className="flex justify-center pb-16">
-            {renderTree('mikhail')}
+          <div className="flex justify-center pb-16 overflow-x-auto">
+            <div className="inline-block min-w-full">
+              {renderPerson('mikhail')}
+            </div>
           </div>
         </div>
       </main>
@@ -274,7 +567,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <p className="text-muted-foreground text-sm flex items-center justify-center gap-2">
             <Icon name="Crown" size={14} className="text-primary" />
-            <span>Династия Романовых • 1613–1917</span>
+            <span>Династия Романовых • 1613–1917 • {Object.keys(familyTree).length} членов семьи</span>
           </p>
         </div>
       </footer>
