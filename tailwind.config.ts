@@ -65,6 +65,12 @@ export default {
 				royal: {
 					gold: '#D4AF37',
 					navy: '#1A1F2C'
+				},
+				tree: {
+					bark: '#5D4E37',
+					leaf: '#DAA520',
+					leafLight: '#F0E68C',
+					branch: '#8B7355'
 				}
 			},
 			fontFamily: {
@@ -116,13 +122,33 @@ export default {
 						transform: 'scale(1)',
 						opacity: '1'
 					}
+				},
+				'sway': {
+					'0%, 100%': {
+						transform: 'rotate(-2deg)'
+					},
+					'50%': {
+						transform: 'rotate(2deg)'
+					}
+				},
+				'grow': {
+					'0%': {
+						transform: 'scaleY(0)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scaleY(1)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.3s ease-out',
 				'accordion-up': 'accordion-up 0.3s ease-out',
 				'fade-in': 'fade-in 0.4s ease-out',
-				'scale-in': 'scale-in 0.3s ease-out'
+				'scale-in': 'scale-in 0.3s ease-out',
+				'sway': 'sway 3s ease-in-out infinite',
+				'grow': 'grow 0.6s ease-out forwards'
 			}
 		}
 	},
